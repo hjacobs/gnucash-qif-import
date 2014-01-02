@@ -10,7 +10,7 @@ from gnucash import Session, Transaction, Split, GncNumeric
 def lookup_account_by_path(root, path):
     acc = root.lookup_by_name(path[0])
     if acc.get_instance() == None:
-        raise Exception('Account {} not found'.format(name))
+        raise Exception('Account path {} not found'.format(':'.join(path)))
     if len(path) > 1:
         return lookup_account_by_path(acc, path[1:])
     return acc
@@ -48,7 +48,14 @@ def add_transaction(book, item, currency):
     tx.CommitEdit()
 
 def main(args):
-    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
+    if args.verbose:
+        lvl = logging.DEBUG
+    elif args.quiet:
+        lvl = logging.WARN
+    else:
+        lvl = logging.INFO
+
+    logging.basicConfig(level=lvl)
 
     all_items = []
     for fn in args.file:
@@ -73,8 +80,9 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-v', '--verbose', help='Verbose logging', action='store_true')
-    parser.add_argument('-c', '--currency', help='Currency', default='EUR')
+    parser.add_argument('-v', '--verbose', help='Verbose (debug) logging', action='store_true')
+    parser.add_argument('-q', '--quiet', help='Silent mode, only log warnings', action='store_true')
+    parser.add_argument('-c', '--currency', metavar='ISOCODE', help='Currency ISO code (default: EUR)', default='EUR')
     parser.add_argument('-f', '--gnucash-file', help='Gnucash data file')
     parser.add_argument('file', nargs='+', help='Input QIF file(s)')
 
