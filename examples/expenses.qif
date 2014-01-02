@@ -1,0 +1,16 @@
+!Account
+NExpenses:Dining
+^
+!Type:Cash
+
+!Account
+NCash in Wallet
+^
+!Type:Cash
+D2014/1/2
+MLunch at Marcy's
+SExpenses:Dining
+$7.80
+^
+
+

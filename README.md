@@ -3,7 +3,7 @@ GnuCash QIF Import
 
 GnuCash Python helper script to import transactions from QIF text files into GnuCash .gnucash file.
 
-Prerequisities
+Prerequisites
 ==============
 
 * Python 2.7+
