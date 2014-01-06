@@ -1,4 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 A simple class to represent a Quicken (QIF) file, and a parser to
 load a QIF file into a sequence of those classes.
@@ -10,10 +12,25 @@ Original source from http://code.activestate.com/recipes/306103-quicken-qif-file
 
 import sys
 import datetime
- 
+
+
 class QifItem:
+
     def __init__(self):
-        self.order = ['date', 'account', 'amount', 'cleared', 'num', 'payee', 'memo', 'address', 'category', 'split_category', 'split_memo', 'split_amount']
+        self.order = [
+            'date',
+            'account',
+            'amount',
+            'cleared',
+            'num',
+            'payee',
+            'memo',
+            'address',
+            'category',
+            'split_category',
+            'split_memo',
+            'split_amount',
+        ]
         self.type = None
         self.date = None
         self.account = None
@@ -30,9 +47,10 @@ class QifItem:
 
     def __str__(self):
         titles = ','.join(self.order)
-        tmpstring = ','.join( [str(self.__dict__[field]) for field in self.order] )
+        tmpstring = ','.join([str(self.__dict__[field]) for field in self.order])
         tmpstring = tmpstring.replace('None', '')
-        return titles + "\n" + tmpstring
+        return titles + '\n' + tmpstring
+
 
 def parse_qif(infile):
     """
@@ -46,9 +64,10 @@ def parse_qif(infile):
     for line in infile:
         firstchar = line[0]
         data = line[1:].strip()
-        if firstchar == '\n': # blank line
+        if firstchar == '\n':  # blank line
             pass
-        elif firstchar == '^': # end of item
+        elif firstchar == '^':
+                               # end of item
             if curItem.type != 'Account':
                 # save the item
                 items.append(curItem)
@@ -82,11 +101,12 @@ def parse_qif(infile):
             curItem.type = data
         else:
             # don't recognise this line; ignore it
-            print >> sys.stderr, "Skipping unknown line:\n", line
+            print >> sys.stderr, 'Skipping unknown line:\n', line
 
     return items
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     # read from stdin and write CSV to stdout
     items = parse_qif(sys.stdin)
     for item in items:

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import argparse
 import datetime
@@ -6,6 +7,7 @@ import logging
 import qif
 
 from gnucash import Session, Transaction, Split, GncNumeric
+
 
 def lookup_account_by_path(root, path):
     acc = root.lookup_by_name(path[0])
@@ -15,12 +17,15 @@ def lookup_account_by_path(root, path):
         return lookup_account_by_path(acc, path[1:])
     return acc
 
+
 def lookup_account(root, name):
     path = name.split(':')
     return lookup_account_by_path(root, path)
 
+
 def add_transaction(book, item, currency):
-    logging.info('Adding transaction for account "%s" (%s %s)..', item.account, item.split_amount, currency.get_mnemonic())
+    logging.info('Adding transaction for account "%s" (%s %s)..', item.account, item.split_amount,
+                 currency.get_mnemonic())
     root = book.get_root_account()
     acc = lookup_account(root, item.account)
 
@@ -47,6 +52,7 @@ def add_transaction(book, item, currency):
 
     tx.CommitEdit()
 
+
 def main(args):
     if args.verbose:
         lvl = logging.DEBUG
@@ -72,11 +78,12 @@ def main(args):
     currency = commod_tab.lookup('ISO4217', args.currency)
 
     for item in all_items:
-        add_transaction(book, item, currency)    
+        add_transaction(book, item, currency)
 
     logging.debug('Saving GnuCash file..')
     session.save()
     session.end()
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -86,6 +93,6 @@ if __name__ == '__main__':
     parser.add_argument('-f', '--gnucash-file', help='Gnucash data file')
     parser.add_argument('file', nargs='+', help='Input QIF file(s)')
 
-    args = parser.parse_args()    
+    args = parser.parse_args()
     main(args)
 
