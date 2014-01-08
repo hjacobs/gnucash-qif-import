@@ -3,7 +3,9 @@
 
 import argparse
 import datetime
+import json
 import logging
+import os
 import re
 import subprocess
 import tempfile
@@ -83,23 +85,32 @@ def get_mtp_files():
                 yield (last_file_id, filename)
 
 
-def read_entries_from_mtp(pattern):
+def read_entries_from_mtp(pattern, imported):
     entries = []
     regex = re.compile(pattern)
     for file_id, filename in get_mtp_files():
         if regex.match(filename):
             logging.debug('Found matching file on MTP device: "%s" (ID: %s)', filename, file_id)
-            entries.extend(read_entries_from_mtp_file(file_id, filename))
+            if filename in imported:
+                logging.info('Skipping %s (already imported)', filename)
+            else:
+                entries.extend(read_entries_from_mtp_file(file_id, filename))
+                imported.add(filename)
     return entries
 
 
-def read_entries(fn):
+def read_entries(fn, imported):
     logging.debug('Reading %s..', fn)
     if fn.startswith(MTP_SCHEME):
-        items = read_entries_from_mtp(fn[len(MTP_SCHEME):])
+        items = read_entries_from_mtp(fn[len(MTP_SCHEME):], imported)
     else:
+        base = os.path.basename(fn)
+        if base in imported:
+            logging.info('Skipping %s (already imported)', base)
+            return []
         with open(fn) as fd:
             items = qif.parse_qif(fd)
+        imported.add(fn)
     logging.debug('Read %s items from %s', len(items), fn)
     return items
 
@@ -114,9 +125,16 @@ def main(args):
 
     logging.basicConfig(level=lvl)
 
+    imported_cache = os.path.expanduser('~/.gnucash-qif-import-cache.json')
+    if os.path.exists(imported_cache):
+        with open(imported_cache) as fd:
+            imported = set(json.load(fd))
+    else:
+        imported = set()
+
     all_items = []
     for fn in args.file:
-        all_items.extend(read_entries(fn))
+        all_items.extend(read_entries(fn, imported))
 
     logging.debug('Opening GnuCash file %s..', args.gnucash_file)
     session = Session(args.gnucash_file)
@@ -130,6 +148,9 @@ def main(args):
     logging.debug('Saving GnuCash file..')
     session.save()
     session.end()
+
+    with open(imported_cache, 'wb') as fd:
+        json.dump(list(imported), fd)
 
 
 if __name__ == '__main__':
