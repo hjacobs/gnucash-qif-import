@@ -25,7 +25,7 @@ For Ubuntu 13.04:
 The above command should log two "Adding transaction for account.." lines and will add the expenses from examples/expenses.qif to the accounts.gnucash file.
 Open accounts.gnucash with GnuCash before and after executing the above command line to see the difference.
 
-The Python script will assume "EUR" as default currency (QIF files do not specify any currency). Use the "--currency" command line flag to change this.
+The Python script will assume "EUR" as default currency (QIF files do not specify any currency). Use the `--currency` command line flag to change this.
 
 How to import from MTP device (Android phone)
 ---------------------------------------------
