@@ -26,6 +26,25 @@ Open accounts.gnucash with GnuCash before and after executing the above command 
 
 The Python script will assume "EUR" as default currency (QIF files do not specify any currency). Use the "--currency" command line flag to change this.
 
+How to import from MTP device (Android phone)
+=============================================
+
+The import.py script also supports directly importing QIF files from devices supporting [MTP][MTP], e.g. Android phones.
+This is handy if you use [GnuCash Mobile][GnuCash Mobile] and want to synchronize (importing previously saved QIF files) when connecting your phone via USB.
+You need the "mtp-tools" command line programs to use this feature:
+
+    sudo apt-get install mtp-tools
+
+To import all files ending with ".qif" from your MTP device (connected via USB) into your "my-accounts" GnuCash file:
+
+    ./import.py -v -f ~/my-accounts.gnucash mtp:.*.qif   
+
+You can use the `--dry-run` option to do a safe trial run.
+In order to be able to safely repeat the above command without getting a bunch of duplicate transactions (and to speed up the stupidly slow MTP access),
+the import.py script remembers the imported file names in `~/.gnucash-qif-import-cache.json`.
+
+
 [GnuCash]:        http://www.gnucash.org
 [QIF]:            http://en.wikipedia.org/wiki/Quicken_Interchange_Format
+[MTP]:            http://en.wikipedia.org/wiki/Media_Transfer_Protocol
 [GnuCash Mobile]: https://play.google.com/store/apps/details?id=org.gnucash.android&hl=en
