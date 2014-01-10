@@ -115,6 +115,36 @@ def read_entries(fn, imported):
     return items
 
 
+def write_transactions_to_gnucash(gnucash_file, currency, all_items, dry_run=False, date_from=None):
+    logging.debug('Opening GnuCash file %s..', gnucash_file)
+    session = Session(gnucash_file)
+    book = session.book
+    commod_tab = book.get_table()
+    currency = commod_tab.lookup('ISO4217', currency)
+
+    if date_from:
+        date_from = datetime.datetime.strptime(date_from, '%Y-%m-%d')
+
+    imported_items = set()
+    for item in all_items:
+        if date_from and item.date < date_from:
+            logging.info('Skipping entry %s (%s)', item.date.strftime('%Y-%m-%d'), item.split_amount)
+            continue
+        if item.as_tuple() in imported_items:
+            logging.info('Skipping entry %s (%s) --- already imported!', item.date.strftime('%Y-%m-%d'),
+                         item.split_amount)
+            continue
+        add_transaction(book, item, currency)
+        imported_items.add(item.as_tuple())
+
+    if dry_run:
+        logging.debug('** DRY-RUN **')
+    else:
+        logging.debug('Saving GnuCash file..')
+        session.save()
+    session.end()
+
+
 def main(args):
     if args.verbose:
         lvl = logging.DEBUG
@@ -136,27 +166,21 @@ def main(args):
     for fn in args.file:
         all_items.extend(read_entries(fn, imported))
 
-    logging.debug('Opening GnuCash file %s..', args.gnucash_file)
-    session = Session(args.gnucash_file)
-    book = session.book
-    commod_tab = book.get_table()
-    currency = commod_tab.lookup('ISO4217', args.currency)
+    if all_items:
+        write_transactions_to_gnucash(args.gnucash_file, args.currency, all_items, dry_run=args.dry_run,
+                                      date_from=args.date_from)
 
-    for item in all_items:
-        add_transaction(book, item, currency)
-
-    logging.debug('Saving GnuCash file..')
-    session.save()
-    session.end()
-
-    with open(imported_cache, 'wb') as fd:
-        json.dump(list(imported), fd)
+    if not args.dry_run:
+        with open(imported_cache, 'wb') as fd:
+            json.dump(list(imported), fd)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--verbose', help='Verbose (debug) logging', action='store_true')
     parser.add_argument('-q', '--quiet', help='Silent mode, only log warnings', action='store_true')
+    parser.add_argument('--dry-run', help='Noop, do not write anything', action='store_true')
+    parser.add_argument('--date-from', help='Only import transaction >= date (YYYY-MM-DD)')
     parser.add_argument('-c', '--currency', metavar='ISOCODE', help='Currency ISO code (default: EUR)', default='EUR')
     parser.add_argument('-f', '--gnucash-file', help='Gnucash data file')
     parser.add_argument('file', nargs='+',

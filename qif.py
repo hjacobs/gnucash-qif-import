@@ -45,6 +45,9 @@ class QifItem:
         self.split_memo = None
         self.split_amount = None
 
+    def as_tuple(self):
+        return tuple([self.__dict__[field] for field in self.order])
+
     def __str__(self):
         titles = ','.join(self.order)
         tmpstring = ','.join([str(self.__dict__[field]) for field in self.order])
