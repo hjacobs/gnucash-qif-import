@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+'''
+GnuCash Python helper script to import transactions from QIF text files into GnuCash's own file format.
+
+https://github.com/hjacobs/gnucash-qif-import
+'''
+
 import argparse
 import datetime
 import json
@@ -176,7 +182,7 @@ def main(args):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('-v', '--verbose', help='Verbose (debug) logging', action='store_true')
     parser.add_argument('-q', '--quiet', help='Silent mode, only log warnings', action='store_true')
     parser.add_argument('--dry-run', help='Noop, do not write anything', action='store_true')
