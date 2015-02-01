@@ -26,6 +26,7 @@ For Ubuntu 13.04, 14.04:
     ./import.py -v -f examples/accounts.gnucash examples/expenses.qif
 
 For Ubuntu 13.04, 14.04 (MySQL):
+
     sudo apt-get install gnucash python-gnucash
     sudo apt-get install libdbd-mysql
     mysql -u $USERNAME -p$PASSWORD -h $HOSTNAME
@@ -50,7 +51,7 @@ You need the "mtp-tools" command line programs to use this feature:
 
 To import all files ending with ".qif" from your MTP device (connected via USB) into your "my-accounts" GnuCash file:
 
-    ./import.py -v -f ~/my-accounts.gnucash mtp:.*.qif   
+    ./import.py -v -f ~/my-accounts.gnucash mtp:.*.qif
 
 You can use the `--dry-run` option to do a safe trial run.
 In order to be able to safely repeat the above command without getting a bunch of duplicate transactions (and to speed up the stupidly slow MTP access),
