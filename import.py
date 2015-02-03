@@ -16,6 +16,7 @@ import re
 import subprocess
 import tempfile
 import qif
+from decimal import Decimal
 
 from gnucash import Session, Transaction, Split, GncNumeric
 
@@ -52,16 +53,16 @@ def add_transaction(book, item, currency):
     s1 = Split(book)
     s1.SetParent(tx)
     s1.SetAccount(acc)
-    amount = int(item.split_amount.replace('.', ''))
-    s1.SetValue(GncNumeric(amount, 100))
-    s1.SetAmount(GncNumeric(amount, 100))
+    amount = int(Decimal(item.split_amount) * currency.get_fraction())
+    s1.SetValue(GncNumeric(amount, currency.get_fraction()))
+    s1.SetAmount(GncNumeric(amount, currency.get_fraction()))
 
     acc2 = lookup_account(root, item.split_category)
     s2 = Split(book)
     s2.SetParent(tx)
     s2.SetAccount(acc2)
-    s2.SetValue(GncNumeric(amount * -1, 100))
-    s2.SetAmount(GncNumeric(amount * -1, 100))
+    s2.SetValue(GncNumeric(amount * -1, currency.get_fraction()))
+    s2.SetAmount(GncNumeric(amount * -1, currency.get_fraction()))
 
     tx.CommitEdit()
 
