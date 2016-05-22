@@ -53,7 +53,7 @@ def add_transaction(book, item, currency):
     s1 = Split(book)
     s1.SetParent(tx)
     s1.SetAccount(acc)
-    amount = int(Decimal(item.split_amount) * currency.get_fraction())
+    amount = int(Decimal(item.split_amount.replace(',', '.')) * currency.get_fraction())
     s1.SetValue(GncNumeric(amount, currency.get_fraction()))
     s1.SetAmount(GncNumeric(amount, currency.get_fraction()))
 
